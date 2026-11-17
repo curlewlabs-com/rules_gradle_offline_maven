@@ -1,0 +1,23 @@
+load("@rules_python//python:py_test.bzl", "py_test")
+load(":cases.bzl", "cases")
+
+cases(name = "cases")
+
+py_test(
+    name = "repositories_test",
+    size = "small",
+    srcs = ["repositories_test.py"],
+    data = [":cases"],
+    env = {"CASES": "$(rootpath :cases)"},
+    legacy_create_init = 0,
+    main = "repositories_test.py",
+)
+
+py_test(
+    name = "assemble_maven_layout_test",
+    size = "small",
+    srcs = ["assemble_maven_layout_test.py"],
+    legacy_create_init = 0,
+    main = "assemble_maven_layout_test.py",
+    deps = ["//maven:assemble_maven_layout_lib"],
+)

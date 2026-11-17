@@ -1,0 +1,22 @@
+load("@rules_python//python:py_binary.bzl", "py_binary")
+load("@rules_python//python:py_library.bzl", "py_library")
+
+package(default_visibility = ["//visibility:public"])
+
+exports_files([
+    "extensions.bzl",
+    "layout.bzl",
+])
+
+py_library(
+    name = "assemble_maven_layout_lib",
+    srcs = ["assemble_maven_layout.py"],
+    imports = ["."],
+)
+
+py_binary(
+    name = "assemble_maven_layout",
+    srcs = ["assemble_maven_layout.py"],
+    legacy_create_init = 0,
+    main = "assemble_maven_layout.py",
+)

@@ -1,0 +1,25 @@
+// A Java library on Guava's Android variant, whose module file serves it from
+// the sibling -android version's directory: the case the layout has to place
+// where the module says.
+plugins {
+    id "java-library"
+}
+
+dependencies {
+    implementation "com.google.guava:guava:33.5.0-jre"
+    def extra = providers.gradleProperty("extraDependency")
+    if (extra.isPresent()) {
+        implementation extra.get()
+    }
+}
+
+configurations.configureEach {
+    if (canBeResolved) {
+        attributes {
+            attribute(
+                TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
+                objects.named(TargetJvmEnvironment, TargetJvmEnvironment.ANDROID),
+            )
+        }
+    }
+}
