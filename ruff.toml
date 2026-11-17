@@ -1,0 +1,4 @@
+# A project configuration keeps a contributor's own ruff settings out of the
+# checks, so they match CI. The assembler runs on the consumer's Python
+# toolchain, which may be older than the default rules_python registers.
+target-version = "py310"

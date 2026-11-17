@@ -1,0 +1,52 @@
+// Resolves every build in the invocation from the offline Maven layout named by
+// the `offline.maven.repository` system property, and from nothing else. The
+// repositories a build declares, including any a plugin adds while projects
+// are configured, are removed as they are added, so a dependency the lock does
+// not pin fails to resolve rather than reaching a cache or the network.
+
+import org.gradle.api.initialization.resolve.RepositoriesMode
+
+def repositoryRoot = System.getProperty("offline.maven.repository")
+if (repositoryRoot == null) {
+    throw new GradleException("offline.maven.repository names no offline Maven layout")
+}
+def repositoryUri = new File(repositoryRoot).toURI()
+
+def lock = { RepositoryHandler repositories ->
+    def locked = repositories.maven {
+        name = "verificationMetadata"
+        url = repositoryUri
+        // The lock can pin a module file without the pom Gradle reads first to
+        // find it, so the module is looked up directly.
+        metadataSources {
+            gradleMetadata()
+            mavenPom()
+        }
+    }
+    repositories.all { repository ->
+        if (!repository.is(locked)) {
+            repositories.remove(repository)
+        }
+    }
+}
+
+def projectRepositories = true
+
+beforeSettings { settings ->
+    lock(settings.buildscript.repositories)
+    lock(settings.pluginManagement.repositories)
+    lock(settings.dependencyResolutionManagement.repositories)
+}
+
+settingsEvaluated { settings ->
+    // A build that fails on project repositories would fail on this script's
+    // own; one that prefers settings ignores them.
+    projectRepositories = settings.dependencyResolutionManagement.repositoriesMode.get() == RepositoriesMode.PREFER_PROJECT
+}
+
+allprojects { project ->
+    lock(project.buildscript.repositories)
+    if (projectRepositories) {
+        lock(project.repositories)
+    }
+}

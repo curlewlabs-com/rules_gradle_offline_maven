@@ -1,0 +1,9 @@
+// The project tools/check_gradle.py resolves offline against the layout this
+// directory's Bazel module declares.
+rootProject.name = "consumer"
+
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+    }
+}

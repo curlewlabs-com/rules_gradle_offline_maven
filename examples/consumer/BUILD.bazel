@@ -1,0 +1,16 @@
+load("@rules_python//python:py_test.bzl", "py_test")
+
+exports_files(["gradle/verification-metadata.xml"])
+
+py_test(
+    name = "layout_test",
+    size = "small",
+    srcs = ["layout_test.py"],
+    data = [
+        "@consumer_maven//:files",
+        "@consumer_maven//:maven-repository.json",
+    ],
+    env = {"MARKER": "$(rootpath @consumer_maven//:maven-repository.json)"},
+    legacy_create_init = 0,
+    main = "layout_test.py",
+)

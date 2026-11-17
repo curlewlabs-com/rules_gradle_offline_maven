@@ -1,0 +1,51 @@
+# Contributing
+
+Use the Bazel release in `.bazelversion`, Git, and for the Gradle check a JDK
+and the Gradle release CI pins. Keep changes on a branch and open a pull
+request with the behavior change and its verification.
+
+## Maintainership and review
+
+Curlew Labs maintains this project. Jeffrey Wall
+([jeffwall-curlewlabs](https://github.com/jeffwall-curlewlabs)) reviews changes
+and approves the releases that
+[need approval](docs/releases.md#which-releases-need-approval). Use issues for
+reproducible defects and proposals; use
+[private vulnerability reporting](SECURITY.md) for security concerns.
+
+Changes land through pull requests with passing CI and maintainer review;
+[dependency updates](#dependency-updates) merge on passing CI alone. Fixed
+version tags and published release artifacts are never replaced.
+
+## Local checks
+
+Install `pre-commit==4.3.0`, then run:
+
+```sh
+pre-commit install
+pre-commit run --all-files
+bazel test //...
+python3 tools/check_rejections.py
+(cd examples/consumer && bazel test //...)
+python3 tools/check_gradle.py --gradle /path/to/gradle
+```
+
+`tools/check_rejections.py` runs Bazel against locks and module files the
+fetch must refuse, served from a local directory. The consumer and the Gradle
+check fetch the example's lock from Maven Central.
+
+## Dependency updates
+
+[Renovate](https://docs.renovatebot.com/) proposes each new minor and patch
+release of Bazel, the Bazel modules, the workflow actions, and the JDK and
+Gradle the Gradle check runs, once it has aged, and merges the pull request
+when CI passes. A new Bazel major is moved by hand. The `# renovate:` comment
+above a pin tells Renovate what the literal below is.
+
+The example's Guava version is its lock's, not a pin to move: changing it
+means regenerating `examples/consumer/gradle/verification-metadata.xml` with
+`gradle --write-verification-metadata sha256 compileJava`.
+
+## Releases
+
+Follow [releases](docs/releases.md).
