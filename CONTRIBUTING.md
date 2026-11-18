@@ -1,8 +1,9 @@
 # Contributing
 
-Use the Bazel release in `.bazelversion`, Git, and for the Gradle check a JDK
-and the Gradle release CI pins. Keep changes on a branch and open a pull
-request with the behavior change and its verification.
+Use the Bazel release in `.bazelversion`, Git, Python 3.11 or later (on 3.10
+mypy needs a package `requirements-dev.txt` does not pin), and for the Gradle
+check a JDK and the Gradle release CI pins. Keep changes on a branch and open a
+pull request with the behavior change and its verification.
 
 ## Maintainership and review
 
@@ -19,11 +20,9 @@ version tags and published release artifacts are never replaced.
 
 ## Local checks
 
-Install `pre-commit==4.3.0`, then run:
-
 ```sh
-pre-commit install
-pre-commit run --all-files
+python3 -m pip install -r requirements-dev.txt
+mypy
 bazel test //...
 python3 tools/check_rejections.py
 (cd examples/consumer && bazel test //...)
