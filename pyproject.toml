@@ -1,0 +1,8 @@
+# Type-check settings only; ruff reads ruff.toml.
+[tool.mypy]
+# The oldest Python every checked file runs on: the tests use 3.11's
+# TestCase.enterContext. The assembler itself runs on the consumer's Python
+# toolchain, and ruff.toml keeps its syntax to 3.10.
+python_version = "3.11"
+strict = true
+files = ["examples", "maven", "tools"]

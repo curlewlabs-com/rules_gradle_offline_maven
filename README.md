@@ -64,11 +64,11 @@ gradle_maven.lock(
 use_repo(gradle_maven, "app_maven")
 ```
 
-| Target                              | What it is                                                                                                     |
-| ----------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `@app_maven//:files`                | The layout, a directory, and its marker. Declare it as an input of the action that runs Gradle.                |
+| Target                               | What it is                                                                                                      |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| `@app_maven//:files`                 | The layout, a directory, and its marker. Declare it as an input of the action that runs Gradle.                 |
 | `@app_maven//:maven-repository.json` | The marker alone: `{"root": "repository"}`, the layout directory's name relative to the marker's own directory. |
-| `@app_maven//:outside_layout_jars`  | The jars of the `outside_layout` components.                                                                   |
+| `@app_maven//:outside_layout_jars`   | The jars of the `outside_layout` components.                                                                    |
 
 Every file a component serves is fetched from the first repository that has
 it, and accepted only if its digest matches the lock. `group_repositories` only
