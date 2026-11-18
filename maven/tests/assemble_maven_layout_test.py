@@ -12,7 +12,9 @@ from assemble_maven_layout import assemble
 
 class MavenLayoutTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.root = Path(self.enterContext(TemporaryDirectory()))
+        scratch = TemporaryDirectory()
+        self.addCleanup(scratch.cleanup)
+        self.root = Path(scratch.name)
         self.repository = self.root / "repository"
         self.marker = self.root / "maven-repository.json"
 

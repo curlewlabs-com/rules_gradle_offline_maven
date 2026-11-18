@@ -33,7 +33,7 @@ class Case:
     # Each served file's path under the repository, and its bytes.
     served: dict[str, bytes]
     # Each artifact the lock pins under org.example:lib:1, and its digest.
-    pinned: dict[str, str] = field(default_factory=dict)
+    pinned: dict[str, str] = field(default_factory=dict[str, str])
     configuration: str = (
         "<verify-metadata>true</verify-metadata>"
         "<verify-signatures>false</verify-signatures>"
