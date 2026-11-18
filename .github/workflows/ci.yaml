@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: ${{ github.ref_name != 'main' }}
 
 jobs:
-  integration:
+  integration-test:
     name: Integration (${{ matrix.os }})
     strategy:
       fail-fast: false
@@ -47,7 +47,7 @@ jobs:
           RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
         run: python3 tools/prepare_release.py "$RELEASE_TAG" > "$RUNNER_TEMP/release-notes.md"
 
-  gradle:
+  gradle-offline-test:
     name: Gradle offline (${{ matrix.os }})
     strategy:
       fail-fast: false
@@ -107,14 +107,14 @@ jobs:
       - uses: curlewlabs-com/ci-baseline@f05f17a38ba2dfbaf0cde130a375b346e9a923a2 # v0.2.0
 
   conclusion:
-    needs: [integration, gradle, lint, baseline]
+    needs: [integration-test, gradle-offline-test, lint, baseline]
     runs-on: ubuntu-24.04
     if: always()
     steps:
       - name: Require every integration, Gradle and lint job to pass
         env:
-          INTEGRATION: ${{ needs.integration.result }}
-          GRADLE: ${{ needs.gradle.result }}
+          INTEGRATION: ${{ needs.integration-test.result }}
+          GRADLE: ${{ needs.gradle-offline-test.result }}
           LINT: ${{ needs.lint.result }}
           BASELINE: ${{ needs.baseline.result }}
         run: test "$INTEGRATION" = success && test "$GRADLE" = success && test "$LINT" = success && test "$BASELINE" = success
