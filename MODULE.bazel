@@ -1,6 +1,6 @@
 module(
     name = "curlewlabs_rules_gradle_offline_maven",
-    version = "0.1.1",
+    version = "0.1.2",
 )
 
 # The layout's assembler is Python, run on the toolchain rules_python registers.
