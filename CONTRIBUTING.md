@@ -30,8 +30,9 @@ python3 tools/check_gradle.py --gradle /path/to/gradle
 ```
 
 `tools/check_rejections.py` runs Bazel against locks and module files the
-fetch must refuse, served from a local directory. The consumer and the Gradle
-check fetch the example's lock from Maven Central.
+fetch must refuse, and against a pinned file that answers 404 before it is
+served, all from a local HTTP server. The consumer and the Gradle check fetch
+the example's lock from Maven Central.
 
 ## Dependency updates
 

@@ -76,6 +76,11 @@ changes which repository is asked first: Bazel logs a warning for each
 repository that answers 404 before one serves the file, which is most of a cold
 fetch's log when every Android artifact asks Maven Central first.
 
+A repository can answer 404 for a moment for a file it serves; Maven Central
+has done so for a published pom. Every file fetched here is one the lock pins,
+so when no repository serves it, the fetch logs that and asks again a few times,
+for about 15 seconds in all, before it fails.
+
 `outside_layout` is for a component the lock pins that no Gradle resolution
 reads, such as the Android framework jars Robolectric loads at test time. In
 the layout, it would be an input of every Gradle action; outside it, only the
