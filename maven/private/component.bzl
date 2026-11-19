@@ -66,20 +66,43 @@ def module_file_locations(text, module_path):
             locations[name] = url
     return locations
 
+# Every file fetched here is one the lock pins by digest, so the Gradle build
+# that wrote the lock was served it, and no repository serving it now is far
+# more often a moment's fault than a verdict: Maven Central has answered 404
+# for a published pom and served it on the next run. Bazel's downloader takes
+# a 404 as final, so a file no repository served with its pinned digest is
+# asked for again after each of these waits, in seconds, and only the last
+# attempt fails the fetch, with the downloader's own error. A pin no repository
+# serves at all fails a quarter-minute later than it would without them.
+_RETRY_WAITS = [1, 2, 4, 8]
+
+def _download(ctx, path, download, allow_fail):
+    return ctx.download(
+        url = download.urls,
+        output = path,
+        sha256 = download.sha256,
+        block = False,
+        allow_fail = allow_fail,
+    )
+
+def _fetch_batch(ctx, downloads, paths):
+    for wait in _RETRY_WAITS:
+        pending = [(path, _download(ctx, path, downloads[path], True)) for path in paths]
+        paths = [path for path, download in pending if not download.wait().success]
+        if not paths:
+            return
+
+        # buildifier: disable=print
+        print("no repository served %s; asking again in %ds" % (", ".join(paths), wait))
+        ctx.execute(["sleep", str(wait)])
+    pending = [_download(ctx, path, downloads[path], False) for path in paths]
+    for download in pending:
+        download.wait()
+
 def _fetch(ctx, downloads):
     paths = sorted(downloads.keys())
     for start in range(0, len(paths), _CONCURRENT_DOWNLOADS):
-        pending = [
-            ctx.download(
-                url = downloads[path].urls,
-                output = path,
-                sha256 = downloads[path].sha256,
-                block = False,
-            )
-            for path in paths[start:start + _CONCURRENT_DOWNLOADS]
-        ]
-        for download in pending:
-            download.wait()
+        _fetch_batch(ctx, downloads, paths[start:start + _CONCURRENT_DOWNLOADS])
 
 def _add(downloads, repositories, path, sha256):
     path = _normalize(path)
