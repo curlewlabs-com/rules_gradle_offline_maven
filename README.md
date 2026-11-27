@@ -88,20 +88,23 @@ targets that read it declare it.
 
 ### The Gradle side
 
-Run Gradle with `--offline` and an init script that replaces every repository
-the build declares with the layout. The example's
-[`offline.init.gradle`](examples/consumer/offline.init.gradle) does that,
-including for repositories a plugin adds while projects are configured, and
-takes the layout's path as a system property:
+Run Gradle with `--offline` and the init script this module ships,
+`@curlewlabs_rules_gradle_offline_maven//gradle:offline.init.gradle`
+([source](gradle/offline.init.gradle)). It replaces every repository the build
+declares with the layout, including repositories a plugin adds while projects
+are configured, and takes the layout's path as a system property:
 
 ```sh
 gradle --offline \
-  --init-script offline.init.gradle \
+  --init-script "$INIT_SCRIPT" \
   -Doffline.maven.repository="$LAYOUT" \
   assembleDebug
 ```
 
-where `$LAYOUT` is the marker's directory joined with its `root`. Gradle still
+where `$INIT_SCRIPT` is the script's path and `$LAYOUT` is the marker's
+directory joined with its `root`. An action that runs Gradle declares the
+script's label as an input beside `@app_maven//:files`, and passes its
+`$(execpath)`. Gradle still
 verifies what it reads against its own `verification-metadata.xml`, and a
 dependency the lock does not pin fails to resolve.
 
@@ -120,8 +123,8 @@ Gradle reads, so it is an error here rather than something to skip.
 variant, with its own lock. CI fetches its layout cold from Maven Central,
 checks where the Android jar landed, and then
 [`tools/check_gradle.py`](tools/check_gradle.py) compiles the project with
-Gradle offline against it, and checks that a dependency the lock does not pin
-fails to resolve.
+Gradle offline against it, under the module's init script, and checks that a
+dependency the lock does not pin fails to resolve.
 
 ## Contributing
 
