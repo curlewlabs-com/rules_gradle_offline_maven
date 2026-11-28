@@ -105,13 +105,15 @@ gradle --offline \
 
 Use absolute paths for both variables so Gradle can find the inputs even with
 `--project-dir`. Declare the script as an action input beside
-`@app_maven//:files`. In a `genrule`, `$(execpath <label>)` gives the script
-path relative to Bazel's execution root. Resolve the script and marker paths
-against that root before changing directories. Set `$INIT_SCRIPT` to the
-resolved script path and `$LAYOUT` to the resolved marker's directory joined
-with its `root` field. Gradle still verifies what it reads against its own
-`verification-metadata.xml`, and a dependency the lock does not pin fails to
-resolve.
+`@app_maven//:files`. In a `genrule`, list both labels and
+`@app_maven//:maven-repository.json` in `srcs`. Get the script path with
+`$(execpath <script-label>)` and the marker path with
+`$(execpath @app_maven//:maven-repository.json)`. Resolve both paths against
+the action's initial working directory before changing directories. Set
+`$INIT_SCRIPT` to the resolved script path and `$LAYOUT` to the resolved
+marker's directory joined with its `root` field. Gradle still verifies what
+it reads against its own `verification-metadata.xml`, and a dependency the
+lock does not pin fails to resolve.
 
 ### Keeping the lock current
 
