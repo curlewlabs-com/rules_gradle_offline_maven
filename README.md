@@ -88,11 +88,13 @@ targets that read it declare it.
 
 ### The Gradle side
 
-Run Gradle with `--offline` and the init script this module ships,
+Starting with v0.2.0, run Gradle with `--offline` and the module's init script,
 `@curlewlabs_rules_gradle_offline_maven//gradle:offline.init.gradle`
 ([source](gradle/offline.init.gradle)). It replaces every repository the build
 declares with the layout, including repositories a plugin adds while projects
-are configured, and takes the layout's path as a system property:
+are configured. With a v0.1.x release, use `examples/consumer/offline.init.gradle`
+from that release instead. The script takes the layout's path as a system
+property:
 
 ```sh
 gradle --offline \
@@ -103,10 +105,11 @@ gradle --offline \
 
 where `$INIT_SCRIPT` is the script's path and `$LAYOUT` is the marker's
 directory joined with its `root`. An action that runs Gradle declares the
-script's label as an input beside `@app_maven//:files`, and passes its
-`$(execpath)`. Gradle still
-verifies what it reads against its own `verification-metadata.xml`, and a
-dependency the lock does not pin fails to resolve.
+script as an input beside `@app_maven//:files` and passes its execution path
+to Gradle. A `genrule` can obtain the path with `$(execpath)` applied to the
+script's label. Gradle still verifies what it reads against its own
+`verification-metadata.xml`, and a dependency the lock does not pin fails to
+resolve.
 
 ### Keeping the lock current
 
