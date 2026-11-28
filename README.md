@@ -103,11 +103,12 @@ gradle --offline \
   assembleDebug
 ```
 
-where `$INIT_SCRIPT` is the script's path and `$LAYOUT` is the marker's
-directory joined with its `root`. An action that runs Gradle declares the
-script as an input beside `@app_maven//:files` and passes its execution path
-to Gradle. A `genrule` can obtain the path with `$(execpath)` applied to the
-script's label. Gradle still verifies what it reads against its own
+where `$INIT_SCRIPT` is the script's absolute path and `$LAYOUT` is the marker's
+directory joined with its `root`. Declare the script as an action input beside
+`@app_maven//:files`. In a `genrule`, use `$(execpath <label>)` for the script
+and resolve it against the action's working directory before invoking Gradle.
+An absolute path keeps `--project-dir` from changing where Gradle looks for the
+script. Gradle verifies what it reads against its own
 `verification-metadata.xml`, and a dependency the lock does not pin fails to
 resolve.
 

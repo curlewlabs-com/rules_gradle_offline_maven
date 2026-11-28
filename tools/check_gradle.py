@@ -1,10 +1,9 @@
 """Build the example consumer's Gradle project offline against its Bazel layout.
 
-Bazel fetches what the example's lock pins and assembles the layout; Gradle
-then compiles the project with --offline, the init script the module ships
-(read through the module, as a consumer reads it) and a fresh Gradle user home,
-so nothing reaches it except the layout. A dependency
-the lock does not pin must then fail to resolve.
+Bazel assembles the pinned layout and resolves the module's init script through
+the example's Bazel dependency. Gradle builds offline against those inputs
+with a fresh Gradle user home. A dependency outside the lock must fail to
+resolve.
 
     python3 tools/check_gradle.py [--gradle gradle] [--bazel bazel]
 """
@@ -22,9 +21,6 @@ from pathlib import Path
 _UNPINNED = "org.slf4j:slf4j-api:2.0.17"
 
 
-_INIT_SCRIPT = "@curlewlabs_rules_gradle_offline_maven//gradle:offline.init.gradle"
-
-
 def _built_file(bazel: str, consumer: Path, label: str) -> Path:
     execution_root = Path(
         subprocess.check_output(
@@ -40,7 +36,6 @@ def _built_file(bazel: str, consumer: Path, label: str) -> Path:
 
 
 def _inputs(bazel: str, consumer: Path) -> tuple[Path, Path]:
-    """The layout's directory and the module's init script."""
     subprocess.run(
         [bazel, "build", "@consumer_maven//:files"],
         cwd=consumer,
@@ -51,7 +46,7 @@ def _inputs(bazel: str, consumer: Path) -> tuple[Path, Path]:
     root = json.loads(marker.read_text())["root"]
     if not isinstance(root, str):
         raise TypeError(f"the layout marker names no directory: {marker}")
-    return marker.parent / root, _built_file(bazel, consumer, _INIT_SCRIPT)
+    return marker.parent / root, _built_file(bazel, consumer, "//:offline_init_script")
 
 
 def _gradle(
