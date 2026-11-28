@@ -1,0 +1,4 @@
+# Consumers run the init script from this label rather than a copy of it, so a
+# fix to it reaches every build that runs it.
+
+exports_files(["offline.init.gradle"])
